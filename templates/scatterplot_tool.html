@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <div class="container">
+      <div>
+        <div>
+          <h3>Select 2 output properties to draw the scatter plot:</h3>
+        </div>
+        <div>
+            <h4><label>Output Property 1:</label></h4>
+            <h5><select id="p1"></select><h5>
+        </div>
+  
+        <div>
+            <h4><label>Output Property 2:</label><h4>
+            <h5><select id="p2"></select><h5>
+        </div>
+  
+        <div>
+          <br>
+          <button type="button" id="scatterplot">Create plot</button>
+        </div>
+      </div>
+
+      <div>
+        <div id="drawscatter"></div>
+      </div>
+      
+    </div>
+
+    <input type="hidden" id="dataset" name="dataset" value="{{ dataset }}">       
+    
+    <script src="../../static/dataset.js"></script>
+    <script>
+
+		const experiments=[];
+		for (const e in dataset) {
+		  experiments.push(e);
+		}
+
+		const propertyOptions = getExperiments();
+		document.getElementById("p1").innerHTML = propertyOptions;
+		document.getElementById("p2").innerHTML = propertyOptions;
+
+		document.getElementById("scatterplot").addEventListener("click", function() {
+		  const p1 = document.getElementById("p1").value;
+		  const p2 = document.getElementById("p2").value;
+		  generateScatterPlot(p1, p2);
+		});
+
+        function getExperiments() {
+		  var exps = "";
+		  for (const e in dataset) {
+			for (const property in dataset[e].outputs) {
+			  exps += `<option>${property}</option>`
+			}
+			return exps;
+		  }
+		  return exps;
+		}
+
+		function generateScatterPlot(p1, p2) {
+		  const output1_values = [];
+		  const output2_values= [];
+		  for (const e in dataset) {
+			output1_values.push(dataset[e].outputs[p1]);
+			output2_values.push(dataset[e].outputs[p2]);
+		  }
+
+		  var layout = getLayout(p1, p2);
+		  var data = [{
+			x: output1_values,
+			y: output2_values,
+			text: experiments,
+			mode: "markers",
+			type: "scatter"
+		  }];
+		  Plotly.newPlot(document.getElementById("drawscatter"), data, layout);
+		}
+
+		function getLayout(p1, p2) {
+		  return {
+			xaxis: {
+			  title: {
+				text: p1,
+				font: {
+				  size: 15
+				}
+			  }
+			},
+			yaxis: {
+			  title: {
+				text: p2,
+				font: {
+				  size: 15
+				}
+			  }
+			},
+			title: {
+			  text: `Scatter plot of '${p1}' and '${p2}'`,
+			  font: {
+				size: 25
+			  }
+			}
+		  };
+		}
+	
+	</script>
+  </body>
+</html>
+
+{% endblock %}

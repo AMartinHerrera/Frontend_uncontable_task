@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <div class="container">
+      <div>
+        <div>
+          <h3>Select an experiment from the dropdown to see its properties:</h3>
+        </div>
+        <h4><strong>Number of experiments:</strong> {{ num_experiments }} </h4>
+        <div>
+            <h4><label>Experiment:</label></h4>
+            <h5><select id="experiments"></select></h5>
+        </div>
+      </div>      
+      <br>
+      <div>
+        <div>
+          <table class="table table-striped" id="input">
+          </table>
+        </div>
+        <div>
+          <table class="table table-striped" id="output">
+          </table>
+        </div>
+      </div>
+      
+    </div>
+
+    <input type="hidden" id="dataset" name="dataset" value="{{ dataset }}">       
+    
+    <script src="../../static/dataset.js"></script>
+    <script>
+        
+		const experiments = getExperiments();
+		const experiments_dropdown = document.getElementById("experiments");
+		experiments_dropdown.innerHTML = experiments;
+
+		setExperiments(experiments_dropdown.value);
+
+		experiments_dropdown.addEventListener("change", function() {
+		  setExperiments(this.value);
+		});
+
+		function getExperiments() {
+		  var exps = "";
+		  for (const e in dataset) {
+			exps += `<option>${e}</option>`;
+		  }
+		  return exps;
+		}
+    
+		function setExperiments(experiment) {
+		  var input_property = "<thead><tr><th scope=\"col\">Input property</th>";
+		  input_property += "<th scope=\"col\">Property value</th></tr></thead><tbody>";
+		  var output_property = "<thead><tr><th scope=\"col\">Output property</th>";
+		  output_property += "<th scope=\"col\">Property value</th></tr></thead><tbody>";
+		  for (const [i, v] of Object.entries(dataset[experiment].inputs)) {
+			input_property += `<tr><td>${i}</td><td>${v}</td></tr>`;
+		  }
+		  for (const [o, v] of Object.entries(dataset[experiment].outputs)) {
+			output_property += `<tr><td>${o}</td><td>${v}</td></tr>`;
+		  }
+		  input_property += "</tbody>";
+		  output_property += "</tbody";
+
+		  document.getElementById("input").innerHTML = input_property;
+		  document.getElementById("output").innerHTML = output_property;
+		}
+	
+	</script>
+  </body>
+</html>
+
+{% endblock %}
